@@ -94,5 +94,63 @@ describe("oaths", function() {
                 expect(result.message).toBe('');
             });
         });
+        describe("should reject if a resolve handler throws",
+            function() {
+                var result;
+
+                beforeEach(function(done) {
+                    var oath = new Oath(function(res) {
+                        setTimeout(function() {
+                            res(1);
+                        }, 1000);
+                    });
+                    oath.then(function(rV) {
+                        return rV + 1;
+                    }).then(function() {
+                        throw new Error("oh noez!");
+                    }).catch(function(error) {
+                        result = error;
+                        done();
+                    });
+                });
+
+                it('', function() {
+                    expect(result === undefined).toBe(false);
+                    expect(result instanceof Error).toBe(true);
+                    expect(result.message).toBe("oh noez!");
+                });
+            }
+        );
+        describe("should resolve if a reject handler returns",
+            function() {
+                var result;
+
+                beforeEach(function(done) {
+                    var oath = new Oath(function(res, rej) {
+                        setTimeout(function() {
+                            rej(new Error("w"));
+                        }, 1000);
+                    });
+                    oath.catch(function(error) {
+                        return error.message + 'i';
+                    }).then(function(m) {
+                        return m + 'n';
+                    }).then(function(m) {
+                        throw new Error(m + 'n');
+                    }).catch(function(error) {
+                        return error.message + 'e';
+                    }).then(function(m) {
+                        result = m + 'r';
+                        done();
+                    });
+                });
+
+                it('', function() {
+                    expect(result === undefined).
+                        toBe(false);
+                    expect(result).toBe('winner');
+                });
+            }
+        );
     });
 });
