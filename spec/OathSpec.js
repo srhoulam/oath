@@ -282,6 +282,85 @@ describe("oaths", function() {
                 });
             }
         );
+        describe("resolves once the first oath resolves",
+            function() {
+                var result;
+
+                beforeEach(function(done) {
+                    var oaths = [];
+
+                    function executor(res, rej) {
+                        var randNum = Math.random();
+                        setTimeout(function() {
+                            if(Math.random() > 0) {
+                                res(randNum);
+                            } else {
+                                rej(new Error(''));
+                            }
+                        }, 5000 * randNum);
+                    }
+
+                    for(var index = 0; index < 10; index++) {
+                        oaths.push(new Oath(executor));
+                    }
+
+                    Oath.race(oaths).then(function(rV) {
+                        result = rV;
+                        done();
+                    }).catch(function(error) {
+                        result = error;
+                        done();
+                    });
+                });
+
+                it('', function() {
+                    expect(result === undefined).toBe(false);
+                    expect(typeof result).
+                        toBe('number');
+                    expect(result >= 0).toBe(true);
+                    expect(result <= 1).toBe(true);
+                });
+            }
+        );
+        describe("resolves once the first oath resolves",
+            function() {
+                var result;
+
+                beforeEach(function(done) {
+                    var oaths = [];
+
+                    function executor(res, rej) {
+                        var randNum = Math.random();
+                        setTimeout(function() {
+                            if(Math.random() > 1) {
+                                res(randNum);
+                            } else {
+                                rej(new Error(''));
+                            }
+                        }, 5000 * randNum);
+                    }
+
+                    for(var index = 0; index < 10; index++) {
+                        oaths.push(new Oath(executor));
+                    }
+
+                    Oath.race(oaths).then(function(rV) {
+                        result = rV;
+                        done();
+                    }).catch(function(error) {
+                        result = error;
+                        done();
+                    });
+                });
+
+                it('', function() {
+                    expect(result === undefined).toBe(false);
+                    expect(result instanceof Error).
+                        toBe(true);
+                    expect(result.message).toBe('');
+                });
+            }
+        );
     });
     describe("unwrap values from oaths they resolve to",
         function() {
