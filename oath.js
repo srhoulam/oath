@@ -6,38 +6,6 @@ const STATES = {
     RESOLVED : 'resolved'
 };
 
-function setHandler(oath, targetState, handler) {
-    var newOath;
-
-    if(oath.state === targetState) {
-        newOath = new Oath(function(res, rej) {
-            var chain = function chain(value) {
-                try {
-                    let resVal = handler(value);
-                    res(resVal);
-                } catch(e) {
-                    rej(e);
-                }
-            };
-            chain(oath.value);
-        });
-    } else {
-        newOath = new Oath(function(res, rej) {
-            var chain = function chain(value) {
-                try {
-                    let resVal = handler(value);
-                    res(resVal);
-                } catch(e) {
-                    rej(e);
-                }
-            };
-            oath.handlers[targetState].push(chain);
-        });
-    }
-
-    return newOath;
-}
-
 function fulfill(oath) {
     var handlerArray = oath.handlers[oath.state];
 
@@ -69,10 +37,77 @@ function Oath(executor) {
     executor(resolve, reject);
 }
 Oath.prototype.then = function oathThen(handler) {
-    return setHandler(this, STATES.RESOLVED, handler);
+    var self = this;
+    var newOath;
+
+    if(self.state === STATES.RESOLVED) {
+        newOath = new Oath(function(res, rej) {
+            var chain = function chain(value) {
+                try {
+                    let resVal = handler(value);
+                    res(resVal);
+                } catch(e) {
+                    rej(e);
+                }
+            };
+            chain(self.value);
+        });
+    } else if(self.state === STATES.PENDING) {
+        var rejChain;
+        newOath = new Oath(function(res, rej) {
+            var chain = function chain(value) {
+                try {
+                    let resVal = handler(value);
+                    res(resVal);
+                } catch(e) {
+                    rej(e);
+                }
+            };
+            self.handlers[STATES.RESOLVED].push(chain);
+            rejChain = function rejChain(error) {
+                rej(error);
+            };
+            self.handlers[STATES.REJECTED].push(rejChain);
+        });
+    } else {
+        newOath = new Oath(function(res, rej) {
+            rej(self.value);
+        });
+    }
+
+    return newOath;
 };
 Oath.prototype.catch = function oathCatch(handler) {
-    return setHandler(this, STATES.REJECTED, handler);
+    var self = this;
+    var newOath;
+
+    if(self.state === STATES.REJECTED) {
+        newOath = new Oath(function(res, rej) {
+            var chain = function chain(value) {
+                try {
+                    let resVal = handler(value);
+                    res(resVal);
+                } catch(e) {
+                    rej(e);
+                }
+            };
+            chain(self.value);
+        });
+    } else {
+        newOath = new Oath(function(res, rej) {
+            var chain = function chain(value) {
+                try {
+                    let resVal = handler(value);
+                    res(resVal);
+                } catch(e) {
+                    rej(e);
+                }
+            };
+            self.handlers[STATES.REJECTED].push(chain);
+        });
+    }
+
+    return newOath;
 };
 
 module.exports = Oath;
