@@ -24,6 +24,12 @@ function Oath(executor) {
     self.handlers[STATES.REJECTED] = [];
 
     function resolve(resVal) {
+        if(resVal instanceof Oath) {
+            resVal.then(function(rV) {
+                resolve(rV);
+            });
+            return;
+        }
         if(self.state === STATES.PENDING) {
             self.state = STATES.RESOLVED;
             self.value = resVal;
@@ -49,13 +55,7 @@ Oath.prototype.then = function oathThen(handler) {
             var chain = function chain(value) {
                 try {
                     let resVal = handler(value);
-                    if(resVal instanceof Oath) {
-                        resVal.then(function(v) {
-                            res(v);
-                        });
-                    } else {
-                        res(resVal);
-                    }
+                    res(resVal);
                 } catch(e) {
                     rej(e);
                 }
@@ -68,13 +68,7 @@ Oath.prototype.then = function oathThen(handler) {
             var chain = function chain(value) {
                 try {
                     let resVal = handler(value);
-                    if(resVal instanceof Oath) {
-                        resVal.then(function(v) {
-                            res(v);
-                        });
-                    } else {
-                        res(resVal);
-                    }
+                    res(resVal);
                 } catch(e) {
                     rej(e);
                 }
@@ -102,13 +96,7 @@ Oath.prototype.catch = function oathCatch(handler) {
             var chain = function chain(value) {
                 try {
                     let resVal = handler(value);
-                    if(resVal instanceof Oath) {
-                        resVal.then(function(v) {
-                            res(v);
-                        });
-                    } else {
-                        res(resVal);
-                    }
+                    res(resVal);
                 } catch(e) {
                     rej(e);
                 }
@@ -120,13 +108,7 @@ Oath.prototype.catch = function oathCatch(handler) {
             var chain = function chain(value) {
                 try {
                     let resVal = handler(value);
-                    if(resVal instanceof Oath) {
-                        resVal.then(function(v) {
-                            res(v);
-                        });
-                    } else {
-                        res(resVal);
-                    }
+                    res(resVal);
                 } catch(e) {
                     rej(e);
                 }
