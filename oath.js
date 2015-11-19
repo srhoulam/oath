@@ -49,7 +49,13 @@ Oath.prototype.then = function oathThen(handler) {
             var chain = function chain(value) {
                 try {
                     let resVal = handler(value);
-                    res(resVal);
+                    if(resVal instanceof Oath) {
+                        resVal.then(function(v) {
+                            res(v);
+                        });
+                    } else {
+                        res(resVal);
+                    }
                 } catch(e) {
                     rej(e);
                 }
@@ -62,7 +68,13 @@ Oath.prototype.then = function oathThen(handler) {
             var chain = function chain(value) {
                 try {
                     let resVal = handler(value);
-                    res(resVal);
+                    if(resVal instanceof Oath) {
+                        resVal.then(function(v) {
+                            res(v);
+                        });
+                    } else {
+                        res(resVal);
+                    }
                 } catch(e) {
                     rej(e);
                 }
@@ -90,7 +102,13 @@ Oath.prototype.catch = function oathCatch(handler) {
             var chain = function chain(value) {
                 try {
                     let resVal = handler(value);
-                    res(resVal);
+                    if(resVal instanceof Oath) {
+                        resVal.then(function(v) {
+                            res(v);
+                        });
+                    } else {
+                        res(resVal);
+                    }
                 } catch(e) {
                     rej(e);
                 }
@@ -102,7 +120,13 @@ Oath.prototype.catch = function oathCatch(handler) {
             var chain = function chain(value) {
                 try {
                     let resVal = handler(value);
-                    res(resVal);
+                    if(resVal instanceof Oath) {
+                        resVal.then(function(v) {
+                            res(v);
+                        });
+                    } else {
+                        res(resVal);
+                    }
                 } catch(e) {
                     rej(e);
                 }
