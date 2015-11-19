@@ -109,5 +109,8 @@ Oath.prototype.catch = function oathCatch(handler) {
 
     return newOath;
 };
+Oath.prototype.all = function oathAll() {
+    // write Promise.all
+};
 
 module.exports = Oath;
