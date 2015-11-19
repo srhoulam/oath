@@ -24,14 +24,18 @@ function Oath(executor) {
     self.handlers[STATES.REJECTED] = [];
 
     function resolve(resVal) {
-        self.state = STATES.RESOLVED;
-        self.value = resVal;
-        fulfill(self);
+        if(self.state === STATES.PENDING) {
+            self.state = STATES.RESOLVED;
+            self.value = resVal;
+            fulfill(self);
+        }
     }
     function reject(rejVal) {
-        self.state = STATES.REJECTED;
-        self.value = rejVal;
-        fulfill(self);
+        if(self.state === STATES.PENDING) {
+            self.state = STATES.REJECTED;
+            self.value = rejVal;
+            fulfill(self);
+        }
     }
 
     executor(resolve, reject);
@@ -109,8 +113,32 @@ Oath.prototype.catch = function oathCatch(handler) {
 
     return newOath;
 };
-Oath.prototype.all = function oathAll() {
-    // write Promise.all
+Oath.all = function oathAll(oaths) {
+    return new Oath(function(res, rej) {
+        var self = this;
+
+        var accumulator = new Array(oaths.length);
+        var numResolved = 0;
+
+        function onResolveFactory(index) {
+            return function onResolve(resVal) {
+                accumulator[index] = resVal;
+                numResolved++;
+
+                if(numResolved === oaths.length) {
+                    res(accumulator);
+                }
+            };
+        }
+        function onReject(error) {
+            rej(error);
+        }
+
+        oaths.forEach(function(currOath, index) {
+            currOath.then(onResolveFactory(index));
+            currOath.catch(onReject);
+        });
+    });
 };
 
 module.exports = Oath;

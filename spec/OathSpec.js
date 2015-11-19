@@ -122,7 +122,9 @@ describe("oaths", function() {
 
             beforeEach(function(done) {
                 var oath = new Oath(function(res, rej) {
-                    rej(new Error(''));
+                    setTimeout(function(){
+                        rej(new Error(''));
+                    }, 1000);
                 });
                 oath.then(function() {
                     return 1;
@@ -202,6 +204,81 @@ describe("oaths", function() {
                     expect(result === undefined).
                         toBe(false);
                     expect(result).toBe('winner');
+                });
+            }
+        );
+    });
+    describe("can be combined into one oath that", function() {
+        describe("resolves once all oaths have resolved",
+            function() {
+                var result;
+
+                beforeEach(function(done) {
+                    var oaths = [];
+
+                    function executor(res) {
+                        var randNum = Math.random();
+                        setTimeout(function() {
+                            res(randNum);
+                        }, 5000 * randNum);
+                    }
+
+                    for(var index = 0; index < 10; index++) {
+                        oaths.push(new Oath(executor));
+                    }
+
+                    Oath.all(oaths).then(function(rV) {
+                        result = rV;
+                        done();
+                    });
+                });
+
+                it('', function() {
+                    expect(result === undefined).toBe(false);
+                    expect(result instanceof Array).
+                        toBe(true);
+                    expect(result.reduce(function(pV, cV) {
+                        return pV && cV <= 1 && cV >= 0;
+                    }, true)).toBe(true);
+                });
+            }
+        );
+        describe("rejects once one oath has rejected",
+            function() {
+                var result;
+
+                beforeEach(function(done) {
+                    var oaths = [];
+
+                    function executor(res, rej) {
+                        var randNum = Math.random();
+                        setTimeout(function() {
+                            if(Math.random() > .5) {
+                                res(randNum);
+                            } else {
+                                rej(new Error(''));
+                            }
+                        }, 5000 * randNum);
+                    }
+
+                    for(var index = 0; index < 10; index++) {
+                        oaths.push(new Oath(executor));
+                    }
+
+                    Oath.all(oaths).then(function(rV) {
+                        result = rV;
+                        done();
+                    }).catch(function(error) {
+                        result = error;
+                        done();
+                    });
+                });
+
+                it('', function() {
+                    expect(result === undefined).toBe(false);
+                    expect(result instanceof Error).
+                        toBe(true);
+                    expect(result.message).toBe('');
                 });
             }
         );
