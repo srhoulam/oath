@@ -14,7 +14,7 @@ describe("oaths", function() {
         expect(oath.catch instanceof Function).
             toBe(true);
     });
-    describe("when resolved", function() {
+    describe("when immediately resolved", function() {
         describe("should immediately call `then`ed functions",
             function() {
                 var result;
@@ -37,7 +37,32 @@ describe("oaths", function() {
             }
         );
     });
-    describe("when rejected", function() {
+    describe("when resolved", function() {
+        describe("should call `then`ed functions",
+            function() {
+                var result;
+
+                beforeEach(function(done) {
+                    var oath = new Oath(function(res) {
+                        setTimeout(function() {
+                            res(112358);
+                        }, 1000);
+                    });
+                    oath.then(function(rV) {
+                        result = rV;
+                        done();
+                    });
+                });
+
+                it('',function() {
+                    expect(result === undefined).
+                        toBe(false);
+                    expect(result).toBe(112358);
+                });
+            }
+        );
+    });
+    describe("when immediately rejected", function() {
         describe("should immediately call `catch`ed functions",
             function() {
                 var result;
@@ -45,6 +70,34 @@ describe("oaths", function() {
                 beforeEach(function(done) {
                     var oath = new Oath(function(res, rej) {
                         rej(new Error("Warp coil malfunction."));
+                    });
+                    oath.catch(function(err) {
+                        result = err;
+                        done();
+                    });
+                });
+
+                it('', function() {
+                    expect(result === undefined).
+                        toBe(false);
+                    expect(result instanceof Error).
+                        toBe(true);
+                    expect(result.message).
+                        toBe("Warp coil malfunction.");
+                });
+            }
+        );
+    });
+    describe("when rejected", function() {
+        describe("should call `catch`ed functions",
+            function() {
+                var result;
+
+                beforeEach(function(done) {
+                    var oath = new Oath(function(res, rej) {
+                        setTimeout(function() {
+                            rej(new Error("Warp coil malfunction."));
+                        }, 1000);
                     });
                     oath.catch(function(err) {
                         result = err;
