@@ -362,7 +362,7 @@ describe("oaths", function() {
             }
         );
     });
-    describe("unwrap values from oaths they resolve to",
+    describe("unwrap values from resolving oaths they resolve to",
         function() {
             var result;
 
@@ -381,6 +381,32 @@ describe("oaths", function() {
                 expect(result === undefined).toBe(false);
                 expect(result instanceof Oath).toBe(false);
                 expect(result).toBe("Gift wrapped");
+            });
+        }
+    );
+    describe("unwrap errors from rejecting oaths they resolve to",
+        function() {
+            var result;
+
+            beforeEach(function(done) {
+                (new Oath(function(res) {
+                    res(new Oath(function(res, rej) {
+                        rej(new Error("Gift wrapped"));
+                    }));
+                })).then(function(rV) {
+                    result = 'no good';
+                    done();
+                }).catch(function(err) {
+                    result = err;
+                    done();
+                });
+            });
+
+            it('', function() {
+                expect(result === undefined).toBe(false);
+                expect(result instanceof Oath).toBe(false);
+                expect(result instanceof Error).toBe(true);
+                expect(result.message).toBe("Gift wrapped");
             });
         }
     );

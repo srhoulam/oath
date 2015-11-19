@@ -28,6 +28,9 @@ function Oath(executor) {
             resVal.then(function(rV) {
                 resolve(rV);
             });
+            resVal.catch(function(error) {
+                reject(error);
+            });
             return;
         }
         if(self.state === STATES.PENDING) {
