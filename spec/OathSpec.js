@@ -1,6 +1,6 @@
 'use strict';
 
-var Oath = require('../oath');
+var Oath = require('../');
 
 describe("oaths", function() {
     it("should have then and catch methods", function() {
