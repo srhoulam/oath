@@ -207,6 +207,29 @@ describe("oaths", function() {
                 });
             }
         );
+        describe("should cascade resolution across a reject handler", function() {
+            var result;
+
+            beforeEach(function(done) {
+                (new Promise(function(res, rej) {
+                    setTimeout(function() {
+                        rej(new Error('aaaaa'));
+                    }, 3000);
+                })).catch(function(err) {
+                    return error.message;
+                }).catch(function(err) {
+                    ;
+                }).then(function(rV) {
+                    result = rV;
+                    done();
+                });
+            });
+
+            it('', function() {
+                expect(result === undefined).toBe(false);
+                expect(result).toBe('aaaaa');
+            });
+        });
     });
     describe("can be combined into one oath that", function() {
         describe("resolves once all oaths have resolved",
