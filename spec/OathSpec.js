@@ -210,13 +210,16 @@ describe("oaths", function() {
         describe("should cascade resolution across a reject handler", function() {
             var result;
 
-            beforeEach(function() {
+            beforeEach(function(done) {
                 (new Promise(function(res) {
                     res(1);
                 })).catch(function() {
-                    r = 2;
+                    result = 2;
+                    fail();
+                    done();
                 }).then(function(rV) {
                     result = rV;
+                    done();
                 });
             });
 
