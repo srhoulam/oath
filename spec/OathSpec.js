@@ -210,24 +210,19 @@ describe("oaths", function() {
         describe("should cascade resolution across a reject handler", function() {
             var result;
 
-            beforeEach(function(done) {
-                (new Promise(function(res, rej) {
-                    setTimeout(function() {
-                        rej(new Error('aaaaa'));
-                    }, 3000);
-                })).catch(function(err) {
-                    return error.message;
-                }).catch(function(err) {
-                    ;
+            beforeEach(function() {
+                (new Promise(function(res) {
+                    res(1);
+                })).catch(function() {
+                    r = 2;
                 }).then(function(rV) {
                     result = rV;
-                    done();
                 });
             });
 
             it('', function() {
                 expect(result === undefined).toBe(false);
-                expect(result).toBe('aaaaa');
+                expect(result).toBe(1);
             });
         });
     });
