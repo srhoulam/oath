@@ -66,7 +66,6 @@ Oath.prototype.then = function oathThen(handler) {
             chain(self.value);
         });
     } else if(self.state === STATES.PENDING) {
-        var rejChain;
         newOath = new Oath(function(res, rej) {
             var chain = function chain(value) {
                 try {
@@ -77,7 +76,8 @@ Oath.prototype.then = function oathThen(handler) {
                 }
             };
             self.handlers[STATES.RESOLVED].push(chain);
-            rejChain = function rejChain(error) {
+
+            var rejChain = function rejChain(error) {
                 rej(error);
             };
             self.handlers[STATES.REJECTED].push(rejChain);
@@ -106,7 +106,7 @@ Oath.prototype.catch = function oathCatch(handler) {
             };
             chain(self.value);
         });
-    } else {
+    } else if(self.state === STATES.PENDING) {
         newOath = new Oath(function(res, rej) {
             var chain = function chain(value) {
                 try {
@@ -117,6 +117,15 @@ Oath.prototype.catch = function oathCatch(handler) {
                 }
             };
             self.handlers[STATES.REJECTED].push(chain);
+
+            var resChain = function resChain(val) {
+                res(val);
+            };
+            self.handlers[STATES.RESOLVED].push(resChain);
+        });
+    } else {
+        newOath = new Oath(function(res) {
+            res(self.value);
         });
     }
 
